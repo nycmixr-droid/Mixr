@@ -1,0 +1,96 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  clerkId   String   @unique
+  email     String   @unique
+  name      String?
+  image     String?
+  bio       String?
+  role      Role     @default(ATTENDEE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  hostedExperiences Event[] @relation("HostedExperiences")
+  joinedExperiences RSVP[]
+  
+  // Follow relationships
+  followers  Follow[] @relation("Following")
+  following  Follow[] @relation("Follower")
+}
+
+model Event {
+  id              String   @id @default(cuid())
+  title           String
+  description     String
+  category        String?
+  date            DateTime
+  rsvpDeadline    DateTime  // Countdown deadline to join
+  location        String
+  locationTBD     Boolean  @default(false)  // For spontaneous plans
+  latitude        Float?
+  longitude       Float?
+  maxParticipants Int?     // Replaces capacity
+  image           String?
+  gallery         String[]
+  isFeatured      Boolean  @default(false)
+  isInstantJoin   Boolean  @default(true)   // Auto-approve joins
+  published       Boolean  @default(true)   // Auto-publish by default
+  
+  hostId      String
+  host        User     @relation("HostedExperiences", fields: [hostId], references: [id])
+  
+  participants RSVP[]   @relation("EventParticipants")
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RSVP {
+  id        String   @id @default(cuid())
+  status    RSVPStatus @default(CONFIRMED)
+  joinedAt  DateTime @default(now())  // When they joined
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  eventId   String
+  event     Event    @relation("EventParticipants", fields: [eventId], references: [id])
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, eventId])
+}
+
+model Follow {
+  id          String   @id @default(cuid())
+  followerId  String   // User who is following
+  followingId String   // User being followed
+  
+  follower    User     @relation("Follower", fields: [followerId], references: [id], onDelete: Cascade)
+  following   User     @relation("Following", fields: [followingId], references: [id], onDelete: Cascade)
+  
+  createdAt   DateTime @default(now())
+  
+  @@unique([followerId, followingId])
+}
+
+enum Role {
+  ATTENDEE
+  HOST
+  ADMIN
+}
+
+enum RSVPStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+}
