@@ -103,6 +103,7 @@ export default async function Home() {
                     date: new Date(event.date).toLocaleDateString(),
                     location: event.location,
                     price: event.price === 0 ? "Free" : `$${event.price}`,
+                    // price: event.price === 0 ? "Free" : `$${event.price}`,
                     image: event.image || "/placeholder.jpg",
                     attendees: event._count.participants,
                   }}
