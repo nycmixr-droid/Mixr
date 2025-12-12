@@ -29,7 +29,7 @@ export function Navbar() {
                 <Link href="/" className="flex items-center gap-2">
                     <div className="relative w-32 h-12">
                         <Image
-                            src="/newLogo.png"
+                            src="/logo.png"
                             alt="Mixr"
                             fill
                             className="object-contain object-left"
