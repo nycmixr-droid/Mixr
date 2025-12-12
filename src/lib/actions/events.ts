@@ -43,15 +43,19 @@ export async function createEvent(formData: FormData) {
         },
     });
 
+    // Default RSVP deadline to 2 hours before event
+    const rsvpDeadline = new Date(dateTime.getTime() - 2 * 60 * 60 * 1000);
+
     const event = await db.event.create({
         data: {
             title,
             description,
             category,
             date: dateTime,
+            rsvpDeadline,
             location,
-            price: parseFloat(priceStr),
-            capacity: parseInt(capacityStr),
+            price: parseFloat(priceStr) || 0,
+            maxParticipants: parseInt(capacityStr) || 0,
             image: image || "https://images.unsplash.com/photo-1514525253440-b393452e3383?q=80&w=1000&auto=format&fit=crop",
             hostId: user.id,
         },
@@ -78,7 +82,7 @@ export async function getEvents() {
 }
 
 export async function getEventById(id: string) {
-    const event = await prisma.event.findUnique({
+    const event = await db.event.findUnique({
         where: { id },
         include: {
             host: true,

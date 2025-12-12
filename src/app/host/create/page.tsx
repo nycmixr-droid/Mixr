@@ -7,6 +7,7 @@ import { motion } from "framer-motion";
 import { Upload, Calendar, MapPin, DollarSign, Users, Type, Image as ImageIcon, Sparkles } from "lucide-react";
 import { ExperienceCard } from "@/components/landing/ExperienceCard";
 import { MapboxAutocomplete } from "@/components/map/MapboxAutocomplete";
+import { ImageUpload } from "@/components/upload/ImageUpload";
 
 import { createEvent } from "@/lib/actions/events";
 
@@ -136,18 +137,12 @@ export default function CreateEventPage() {
                                         </div>
 
                                         <div className="space-y-2 group">
-                                            <label className="text-xs font-medium text-white/40 uppercase tracking-wider group-focus-within:text-gold transition-colors">Cover Image URL</label>
-                                            <div className="relative">
-                                                <input
-                                                    name="image"
-                                                    value={formData.image}
-                                                    onChange={handleInputChange}
-                                                    type="url"
-                                                    placeholder="https://..."
-                                                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-4 pr-10 text-white placeholder:text-white/20 focus:outline-none focus:border-gold/50 transition-colors"
-                                                />
-                                                <ImageIcon className="absolute right-4 top-3.5 w-5 h-5 text-white/20" />
-                                            </div>
+                                            <label className="text-xs font-medium text-white/40 uppercase tracking-wider group-focus-within:text-gold transition-colors">Cover Image</label>
+                                            <ImageUpload
+                                                value={formData.image}
+                                                onChange={(url) => setFormData(prev => ({ ...prev, image: url }))}
+                                            />
+                                            <input type="hidden" name="image" value={formData.image} />
                                         </div>
                                     </div>
                                 </div>

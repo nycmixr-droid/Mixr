@@ -6,6 +6,7 @@ import { useState } from "react";
 import { updateEvent } from "./actions";
 import { useRouter } from "next/navigation";
 import { Calendar, DollarSign, Users, Image as ImageIcon } from "lucide-react";
+import { ImageUpload } from "@/components/upload/ImageUpload";
 
 type Event = {
     id: string;
@@ -17,7 +18,7 @@ type Event = {
     latitude: number | null;
     longitude: number | null;
     price: number;
-    capacity: number | null;
+    maxParticipants: number | null;
     image: string | null;
 };
 
@@ -40,7 +41,7 @@ export default function EventEditClient({ event }: { event: Event }) {
         latitude: event.latitude,
         longitude: event.longitude,
         price: event.price.toString(),
-        capacity: event.capacity?.toString() || "",
+        capacity: event.maxParticipants?.toString() || "",
         image: event.image || "",
     });
 
@@ -130,19 +131,13 @@ export default function EventEditClient({ event }: { event: Event }) {
 
                             <div className="space-y-2">
                                 <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
-                                    Cover Image URL
+                                    Cover Image
                                 </label>
-                                <div className="relative">
-                                    <input
-                                        name="image"
-                                        value={formData.image}
-                                        onChange={handleInputChange}
-                                        type="url"
-                                        placeholder="https://..."
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-4 pr-10 text-white placeholder:text-white/20 focus:outline-none focus:border-gold/50 transition-colors"
-                                    />
-                                    <ImageIcon className="absolute right-4 top-3.5 w-5 h-5 text-white/20" />
-                                </div>
+                                <ImageUpload
+                                    value={formData.image}
+                                    onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
+                                />
+                                <input type="hidden" name="image" value={formData.image} />
                             </div>
                         </div>
                     </div>

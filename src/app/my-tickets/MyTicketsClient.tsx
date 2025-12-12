@@ -6,7 +6,7 @@ import { QRCodeSVG } from "qrcode.react";
 
 type Ticket = {
     id: string;
-    qrCode: string;
+    qrCode: string | null;
     status: string;
     checkedInAt: Date | null;
     event: {
@@ -83,7 +83,7 @@ export default function MyTicketsClient({ tickets }: { tickets: Ticket[] }) {
                                 {/* QR Code */}
                                 <div className="bg-white p-6 flex items-center justify-center md:w-48">
                                     <div className="text-center">
-                                        <QRCodeSVG value={ticket.qrCode} size={128} />
+                                        <QRCodeSVG value={ticket.qrCode || ""} size={128} />
                                         <p className="text-xs text-black/50 mt-2">
                                             Scan at venue
                                         </p>

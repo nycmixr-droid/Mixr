@@ -20,6 +20,8 @@ model User {
 
   hostedExperiences Event[] @relation("HostedExperiences")
   joinedExperiences RSVP[]
+  orders            Order[]
+  tickets           Ticket[]
   
   // Follow relationships
   followers  Follow[] @relation("Following")
@@ -37,6 +39,7 @@ model Event {
   locationTBD     Boolean  @default(false)  // For spontaneous plans
   latitude        Float?
   longitude       Float?
+  price           Float    @default(0)
   maxParticipants Int?     // Replaces capacity
   image           String?
   gallery         String[]
@@ -48,6 +51,7 @@ model Event {
   host        User     @relation("HostedExperiences", fields: [hostId], references: [id])
   
   participants RSVP[]   @relation("EventParticipants")
+  tickets      Ticket[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -83,6 +87,33 @@ model Follow {
   @@unique([followerId, followingId])
 }
 
+model Order {
+  id              String        @id @default(cuid())
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  totalAmount     Float
+  paymentStatus   PaymentStatus @default(PENDING)
+  paymentIntentId String?
+  tickets         Ticket[]
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+}
+
+model Ticket {
+  id        String       @id @default(cuid())
+  userId    String
+  user      User         @relation(fields: [userId], references: [id])
+  eventId   String
+  event     Event        @relation(fields: [eventId], references: [id])
+  orderId   String?
+  order     Order?       @relation(fields: [orderId], references: [id])
+  qrCode    String?      @unique
+  status    TicketStatus @default(VALID)
+  checkedInAt DateTime?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
 enum Role {
   ATTENDEE
   HOST
@@ -93,4 +124,17 @@ enum RSVPStatus {
   PENDING
   CONFIRMED
   CANCELLED
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+}
+
+enum TicketStatus {
+  VALID
+  USED
+  CANCELLED
+  REFUNDED
 }

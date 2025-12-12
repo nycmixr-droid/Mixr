@@ -9,6 +9,7 @@ import { useAuth } from "@clerk/nextjs";
 import { motion } from "framer-motion";
 import { Calendar, MapPin, Users, Image as ImageIcon, Clock, Sparkles } from "lucide-react";
 import { createExperience } from "./actions";
+import { ImageUpload } from "@/components/upload/ImageUpload";
 
 export default function CreateExperiencePage() {
     const router = useRouter();
@@ -254,20 +255,14 @@ export default function CreateExperiencePage() {
                                 </div>
 
                                 <div className="md:col-span-2">
-                                    <label className="text-sm font-medium text-white/40 uppercase tracking-wider">
-                                        Image URL (optional)
+                                    <label className="text-sm font-medium text-white/40 uppercase tracking-wider mb-2 block">
+                                        Cover Image (optional)
                                     </label>
-                                    <div className="relative">
-                                        <input
-                                            name="image"
-                                            value={formData.image}
-                                            onChange={handleInputChange}
-                                            type="url"
-                                            placeholder="https://..."
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-4 pr-10 text-white placeholder:text-white/20 focus:outline-none focus:border-gold/50 transition-colors"
-                                        />
-                                        <ImageIcon className="absolute right-4 top-3.5 w-5 h-5 text-white/20" />
-                                    </div>
+                                    <ImageUpload
+                                        value={formData.image}
+                                        onChange={(url) => setFormData((prev) => ({ ...prev, image: url }))}
+                                    />
+                                    <input type="hidden" name="image" value={formData.image} />
                                 </div>
                             </div>
                         </div>

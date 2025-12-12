@@ -53,7 +53,7 @@ export async function updateEvent(eventId: string, formData: FormData) {
             latitude: latitude ? parseFloat(latitude) : null,
             longitude: longitude ? parseFloat(longitude) : null,
             price: parseFloat(price),
-            capacity: capacity ? parseInt(capacity) : null,
+            maxParticipants: capacity ? parseInt(capacity) : null,
             image,
         },
     });

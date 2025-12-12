@@ -59,7 +59,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                                     {event.category}
                                 </span>
                                 <span className="text-gold/80 text-sm font-medium tracking-wide">
-                                    {event._count.rsvps} people attending
+                                    {event._count.participants} people attending
                                 </span>
                             </div>
 

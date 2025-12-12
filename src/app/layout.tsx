@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Outfit, Inter } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { ourFileRouter } from "@/app/api/uploadthing/core";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -31,6 +34,9 @@ export default function RootLayout({
         <body
           className={`${outfit.variable} ${inter.variable} antialiased bg-black text-white`}
         >
+          <NextSSRPlugin
+            routerConfig={extractRouterConfig(ourFileRouter)}
+          />
           {children}
         </body>
       </html>
