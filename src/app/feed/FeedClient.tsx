@@ -22,7 +22,6 @@ type Experience = {
     latitude: number | null;
     longitude: number | null;
     image: string | null;
-    maxParticipants: number | null;
     host: {
         id: string;
         name: string | null;
@@ -135,7 +134,7 @@ export default function FeedClient({ experiences }: { experiences: Experience[] 
                             location: exp.location,
                             locationTBD: exp.locationTBD,
                         }))}
-                        onMarkerClick={(id) => router.push(`/experiences/${id}/join`)}
+                        onMarkerClick={(id) => router.push(`/events/${id}`)}
                     />
                 )}
 
@@ -166,10 +165,6 @@ export default function FeedClient({ experiences }: { experiences: Experience[] 
 }
 
 function ExperienceFeedCard({ experience }: { experience: Experience }) {
-    const spotsLeft = experience.maxParticipants
-        ? experience.maxParticipants - experience._count.participants
-        : null;
-
     return (
         <div className="bg-surface border border-white/10 rounded-3xl overflow-hidden hover:border-gold/30 transition-colors">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 p-6">
@@ -232,7 +227,6 @@ function ExperienceFeedCard({ experience }: { experience: Experience }) {
                             <Users className="w-4 h-4 text-gold" />
                             <span>
                                 {experience._count.participants} joined
-                                {spotsLeft !== null && ` • ${spotsLeft} spots left`}
                             </span>
                         </div>
                     </div>
@@ -242,17 +236,9 @@ function ExperienceFeedCard({ experience }: { experience: Experience }) {
                 <div className="flex flex-col justify-between">
                     <div className="space-y-4">
                         <CountdownTimer deadline={experience.rsvpDeadline} />
-
-                        {spotsLeft !== null && spotsLeft <= 3 && spotsLeft > 0 && (
-                            <div className="px-3 py-2 bg-red-500/10 border border-red-500/30 rounded-lg">
-                                <p className="text-sm text-red-500 font-medium">
-                                    ⚠️ Only {spotsLeft} spot{spotsLeft !== 1 ? "s" : ""} left!
-                                </p>
-                            </div>
-                        )}
                     </div>
 
-                    <Link href={`/experiences/${experience.id}/join`} className="mt-4">
+                    <Link href={`/events/${experience.id}`} className="mt-4">
                         <Button size="lg" className="w-full">
                             Join Now
                         </Button>

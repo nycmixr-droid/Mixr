@@ -40,7 +40,8 @@ export async function createExperience(formData: FormData) {
     const locationTBD = formData.get("locationTBD") === "true";
     const latitude = formData.get("latitude") as string;
     const longitude = formData.get("longitude") as string;
-    const maxParticipants = formData.get("maxParticipants") as string;
+    const visibility = (formData.get("visibility") as "PUBLIC" | "PRIVATE") || "PUBLIC";
+    const audience = (formData.get("audience") as "ALL" | "MEN_ONLY" | "WOMEN_ONLY") || "ALL";
     const image = formData.get("image") as string;
 
     const dateTime = new Date(`${date}T${time}`);
@@ -57,7 +58,8 @@ export async function createExperience(formData: FormData) {
             locationTBD,
             latitude: latitude ? parseFloat(latitude) : null,
             longitude: longitude ? parseFloat(longitude) : null,
-            maxParticipants: maxParticipants ? parseInt(maxParticipants) : null,
+            visibility,
+            audience,
             image: image || null,
             host: {
                 connect: { id: user.id },

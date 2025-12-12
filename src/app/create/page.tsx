@@ -26,7 +26,8 @@ export default function CreateExperiencePage() {
         location: "",
         latitude: null as number | null,
         longitude: null as number | null,
-        maxParticipants: "",
+        visibility: "PUBLIC",
+        audience: "ALL",
         image: "",
     });
 
@@ -211,27 +212,40 @@ export default function CreateExperiencePage() {
                             </div>
                         </div>
 
-                        {/* Optional Details */}
+                        {/* Settings */}
                         <div className="bg-surface p-8 rounded-3xl border border-white/10">
-                            <h2 className="text-xl font-bold mb-6">Optional</h2>
+                            <h2 className="text-xl font-bold mb-6">Settings</h2>
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div>
                                     <label className="text-sm font-medium text-white/40 uppercase tracking-wider">
-                                        Max People
+                                        Visibility
                                     </label>
-                                    <div className="relative">
-                                        <Users className="absolute left-4 top-3.5 w-5 h-5 text-gold/50" />
-                                        <input
-                                            name="maxParticipants"
-                                            value={formData.maxParticipants}
-                                            onChange={handleInputChange}
-                                            type="number"
-                                            placeholder="No limit"
-                                            min="1"
-                                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-gold/50 transition-colors"
-                                        />
-                                    </div>
+                                    <select
+                                        name="visibility"
+                                        value={formData.visibility}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold/50 transition-colors"
+                                    >
+                                        <option value="PUBLIC">Public (Anyone can join)</option>
+                                        <option value="PRIVATE">Private (Approval Required)</option>
+                                    </select>
+                                </div>
+
+                                <div>
+                                    <label className="text-sm font-medium text-white/40 uppercase tracking-wider">
+                                        Audience
+                                    </label>
+                                    <select
+                                        name="audience"
+                                        value={formData.audience}
+                                        onChange={handleInputChange}
+                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold/50 transition-colors"
+                                    >
+                                        <option value="ALL">All Genders</option>
+                                        <option value="MEN_ONLY">Men Only</option>
+                                        <option value="WOMEN_ONLY">Women Only</option>
+                                    </select>
                                 </div>
 
                                 <div>

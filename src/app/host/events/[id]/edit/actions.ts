@@ -53,7 +53,8 @@ export async function updateEvent(eventId: string, formData: FormData) {
             latitude: latitude ? parseFloat(latitude) : null,
             longitude: longitude ? parseFloat(longitude) : null,
             price: parseFloat(price),
-            maxParticipants: capacity ? parseInt(capacity) : null,
+            visibility: (formData.get("visibility") as "PUBLIC" | "PRIVATE") || "PUBLIC",
+            audience: (formData.get("audience") as "ALL" | "MEN_ONLY" | "WOMEN_ONLY") || "ALL",
             image,
         },
     });

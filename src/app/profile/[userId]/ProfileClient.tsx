@@ -4,14 +4,17 @@ import { useState } from "react";
 import { ExperienceCard } from "@/components/landing/ExperienceCard";
 import { FollowButton } from "@/components/profile/FollowButton";
 import { FollowModal } from "@/components/profile/FollowModal";
-import { Calendar } from "lucide-react";
+import { EditProfileModal } from "@/components/profile/EditProfileModal";
+import { Calendar, Edit2 } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/components/ui/Button";
 
 type User = {
     id: string;
     name: string | null;
     image: string | null;
     bio: string | null;
+    gender: string | null;
     _count: {
         hostedExperiences: number;
         joinedExperiences: number;
@@ -48,6 +51,7 @@ export default function ProfileClient({
     const [activeTab, setActiveTab] = useState<"hosted" | "joined">("hosted");
     const [modalOpen, setModalOpen] = useState(false);
     const [modalType, setModalType] = useState<"followers" | "following">("followers");
+    const [editModalOpen, setEditModalOpen] = useState(false);
 
     const displayExperiences = activeTab === "hosted" ? hostedExperiences : joinedExperiences;
 
@@ -105,8 +109,17 @@ export default function ProfileClient({
                             </div>
                         </div>
 
-                        {/* Follow Button */}
-                        {!isOwnProfile && (
+                        {/* Actions */}
+                        {isOwnProfile ? (
+                            <Button
+                                variant="outline"
+                                onClick={() => setEditModalOpen(true)}
+                                className="gap-2"
+                            >
+                                <Edit2 className="w-4 h-4" />
+                                Edit Profile
+                            </Button>
+                        ) : (
                             <FollowButton
                                 userId={user.id}
                                 initialIsFollowing={user.isFollowing}
@@ -121,8 +134,8 @@ export default function ProfileClient({
                     <button
                         onClick={() => setActiveTab("hosted")}
                         className={`px-6 py-3 rounded-full font-medium transition-colors border ${activeTab === "hosted"
-                                ? "bg-gold text-black border-gold"
-                                : "bg-transparent text-white/70 border-white/10 hover:border-gold/50 hover:text-white"
+                            ? "bg-gold text-black border-gold"
+                            : "bg-transparent text-white/70 border-white/10 hover:border-gold/50 hover:text-white"
                             }`}
                     >
                         Hosted Experiences ({user._count.hostedExperiences})
@@ -130,8 +143,8 @@ export default function ProfileClient({
                     <button
                         onClick={() => setActiveTab("joined")}
                         className={`px-6 py-3 rounded-full font-medium transition-colors border ${activeTab === "joined"
-                                ? "bg-gold text-black border-gold"
-                                : "bg-transparent text-white/70 border-white/10 hover:border-gold/50 hover:text-white"
+                            ? "bg-gold text-black border-gold"
+                            : "bg-transparent text-white/70 border-white/10 hover:border-gold/50 hover:text-white"
                             }`}
                     >
                         Joined Experiences ({user._count.joinedExperiences})
@@ -174,13 +187,19 @@ export default function ProfileClient({
                 )}
             </div>
 
-            {/* Follow Modal */}
+            {/* Modals */}
             <FollowModal
                 isOpen={modalOpen}
                 onClose={() => setModalOpen(false)}
                 userId={user.id}
                 type={modalType}
                 initialCount={modalType === "followers" ? user._count.followers : user._count.following}
+            />
+
+            <EditProfileModal
+                isOpen={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                user={user}
             />
         </div>
     );

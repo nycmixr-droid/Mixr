@@ -14,6 +14,7 @@ model User {
   name      String?
   image     String?
   bio       String?
+  gender    String?
   role      Role     @default(ATTENDEE)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -22,6 +23,7 @@ model User {
   joinedExperiences RSVP[]
   orders            Order[]
   tickets           Ticket[]
+  messages          Message[]
   
   // Follow relationships
   followers  Follow[] @relation("Following")
@@ -40,18 +42,22 @@ model Event {
   latitude        Float?
   longitude       Float?
   price           Float    @default(0)
-  maxParticipants Int?     // Replaces capacity
+  // maxParticipants removed
   image           String?
   gallery         String[]
   isFeatured      Boolean  @default(false)
   isInstantJoin   Boolean  @default(true)   // Auto-approve joins
   published       Boolean  @default(true)   // Auto-publish by default
   
+  visibility      Visibility @default(PUBLIC)
+  audience        Audience   @default(ALL)
+
   hostId      String
   host        User     @relation("HostedExperiences", fields: [hostId], references: [id])
   
   participants RSVP[]   @relation("EventParticipants")
   tickets      Ticket[]
+  messages     Message[]
   
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
@@ -114,6 +120,18 @@ model Ticket {
   updatedAt DateTime     @updatedAt
 }
 
+model Message {
+  id        String   @id @default(cuid())
+  content   String
+  createdAt DateTime @default(now())
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  
+  eventId   String
+  event     Event    @relation(fields: [eventId], references: [id])
+}
+
 enum Role {
   ATTENDEE
   HOST
@@ -137,4 +155,15 @@ enum TicketStatus {
   USED
   CANCELLED
   REFUNDED
+}
+
+enum Visibility {
+  PUBLIC
+  PRIVATE
+}
+
+enum Audience {
+  ALL
+  MEN_ONLY
+  WOMEN_ONLY
 }

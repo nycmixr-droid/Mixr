@@ -20,7 +20,7 @@ type Experience = {
     location: string;
     locationTBD: boolean;
     image: string | null;
-    maxParticipants: number | null;
+    visibility: "PUBLIC" | "PRIVATE";
     host: {
         id: string;
         name: string | null;
@@ -59,9 +59,7 @@ export default function JoinExperienceClient({ experience }: { experience: Exper
         }
     };
 
-    const spotsLeft = experience.maxParticipants
-        ? experience.maxParticipants - experience._count.participants
-        : null;
+    const isPrivate = experience.visibility === "PRIVATE";
 
     return (
         <div className="min-h-screen pt-24 pb-12 container mx-auto px-4 md:px-6">
@@ -86,7 +84,7 @@ export default function JoinExperienceClient({ experience }: { experience: Exper
                         <div className="space-y-3 mb-8">
                             <div className="flex items-center gap-3 text-white/80">
                                 <Calendar className="w-5 h-5 text-gold" />
-                                <span>{new Date(experience.date).toLocaleString()}</span>
+                                <span suppressHydrationWarning>{new Date(experience.date).toLocaleString()}</span>
                             </div>
                             <div className="flex items-center gap-3 text-white/80">
                                 <MapPin className="w-5 h-5 text-gold" />
@@ -98,7 +96,6 @@ export default function JoinExperienceClient({ experience }: { experience: Exper
                                 <Users className="w-5 h-5 text-gold" />
                                 <span>
                                     {experience._count.participants} joined
-                                    {spotsLeft !== null && ` • ${spotsLeft} spots left`}
                                 </span>
                             </div>
                         </div>
@@ -172,20 +169,14 @@ export default function JoinExperienceClient({ experience }: { experience: Exper
                     <div className="bg-surface border border-white/10 rounded-3xl p-8 h-fit sticky top-24">
                         <div className="flex items-center gap-3 mb-6">
                             <CheckCircle className="w-8 h-8 text-gold" />
-                            <h2 className="text-2xl font-bold font-heading">Join This Experience</h2>
+                            <h2 className="text-2xl font-bold font-heading">
+                                {isPrivate ? "Request Access" : "Join This Experience"}
+                            </h2>
                         </div>
 
                         <div className="mb-6">
                             <CountdownTimer deadline={experience.rsvpDeadline} />
                         </div>
-
-                        {spotsLeft !== null && spotsLeft <= 3 && spotsLeft > 0 && (
-                            <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg">
-                                <p className="text-sm text-red-500 font-medium">
-                                    ⚠️ Only {spotsLeft} spot{spotsLeft !== 1 ? "s" : ""} left!
-                                </p>
-                            </div>
-                        )}
 
                         {error && (
                             <div className="mb-6 px-4 py-3 bg-red-500/10 border border-red-500/30 rounded-lg">
@@ -197,13 +188,17 @@ export default function JoinExperienceClient({ experience }: { experience: Exper
                             onClick={handleJoin}
                             size="lg"
                             className="w-full"
-                            disabled={isLoading || (spotsLeft !== null && spotsLeft <= 0)}
+                            disabled={isLoading}
                         >
-                            {isLoading ? "Joining..." : spotsLeft === 0 ? "Full" : "Join Now - It's Free!"}
+                            {isLoading
+                                ? (isPrivate ? "Requesting..." : "Joining...")
+                                : (isPrivate ? "Request Access" : "Join Now - It's Free!")}
                         </Button>
 
                         <p className="text-xs text-white/50 text-center mt-4">
-                            You'll be able to connect with the host and other participants after joining
+                            {isPrivate
+                                ? "Host approval required to join."
+                                : "You'll be able to connect with the host and other participants after joining"}
                         </p>
                     </div>
                 </div>

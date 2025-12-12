@@ -4,6 +4,31 @@ import { db } from "@/lib/db";
 import { auth } from "@clerk/nextjs/server";
 import { revalidatePath } from "next/cache";
 
+export async function updateProfile(formData: FormData) {
+    const { userId } = await auth();
+    if (!userId) throw new Error("Unauthorized");
+
+    const currentUser = await db.user.findUnique({ where: { clerkId: userId } });
+    if (!currentUser) throw new Error("User not found");
+
+    const name = formData.get("name") as string;
+    const bio = formData.get("bio") as string;
+    const gender = formData.get("gender") as string;
+    const image = formData.get("image") as string;
+
+    await db.user.update({
+        where: { id: currentUser.id },
+        data: {
+            name,
+            bio,
+            gender,
+            image,
+        },
+    });
+
+    revalidatePath(`/profile/${currentUser.id}`);
+}
+
 export async function getUserProfile(userId: string) {
     const { userId: currentUserId } = await auth();
 

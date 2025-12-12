@@ -25,7 +25,9 @@ export async function joinExperience(experienceId: string) {
             id: true,
             hostId: true,
             rsvpDeadline: true,
-            maxParticipants: true,
+            visibility: true,
+            audience: true,
+
             _count: {
                 select: {
                     participants: true,
@@ -62,20 +64,29 @@ export async function joinExperience(experienceId: string) {
         throw new Error("You've already joined this experience");
     }
 
-    // Check capacity
-    if (
-        experience.maxParticipants &&
-        experience._count.participants >= experience.maxParticipants
-    ) {
-        throw new Error("This experience is full");
+    // Check audience
+    if (experience.audience !== "ALL") {
+        if (!currentUser.gender) {
+            // Optional: Prompt user to set gender? For now, maybe allow or block.
+            // Let's assume we block if gender is unknown and audience is restricted.
+            throw new Error("Please update your profile with your gender to join this experience");
+        }
+        if (experience.audience === "MEN_ONLY" && currentUser.gender !== "male") {
+            throw new Error("This experience is for men only");
+        }
+        if (experience.audience === "WOMEN_ONLY" && currentUser.gender !== "female") {
+            throw new Error("This experience is for women only");
+        }
     }
 
     // Create RSVP
+    const status = experience.visibility === "PRIVATE" ? "PENDING" : "CONFIRMED";
+
     await db.rSVP.create({
         data: {
             userId: currentUser.id,
             eventId: experienceId,
-            status: "CONFIRMED",
+            status,
         },
     });
 

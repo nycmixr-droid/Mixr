@@ -5,20 +5,49 @@ import { getEventById } from "@/lib/actions/events";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, MapPin, ArrowLeft, Share2, Heart, Clock } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, Share2, Heart, Clock, Lock } from "lucide-react";
+import { auth } from "@clerk/nextjs/server";
+import { db } from "@/lib/db";
+import { getMessages } from "./chat-actions";
+import { EventChat } from "@/components/chat/EventChat";
+import { ManageRequests } from "@/components/events/ManageRequests";
+import { getPendingRequests } from "./manage-actions";
+import { JoinEventButton } from "@/components/events/JoinEventButton";
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
+    const { userId } = await auth();
     const event = await getEventById(id);
 
     if (!event) {
         notFound();
     }
 
+    const currentUser = userId ? await db.user.findUnique({ where: { clerkId: userId } }) : null;
+
+    // Check visibility and access
+    const isHost = userId && event.hostId === currentUser?.id;
+    const isParticipant = userId && (await db.rSVP.findUnique({
+        where: {
+            userId_eventId: {
+                userId: currentUser?.id || "",
+                eventId: id,
+            },
+        },
+    }));
+
+    const canViewDetails = event.visibility === "PUBLIC" || isHost || isParticipant;
+
     // Format date and time
     const eventDate = new Date(event.date);
     const dateStr = eventDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
     const timeStr = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+
+    // Fetch messages if allowed
+    const messages = (isHost || isParticipant) ? await getMessages(id) : [];
+
+    // Fetch pending requests if host
+    const pendingRequests = isHost ? await getPendingRequests(id) : [];
 
     return (
         <main className="min-h-screen bg-black text-white pb-20">
@@ -30,18 +59,18 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                     src={event.image || "/placeholder.jpg"}
                     alt={event.title}
                     fill
-                    className="object-cover"
+                    className={`object-cover ${!canViewDetails ? "blur-xl" : ""}`}
                     priority
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent" />
 
                 <div className="absolute top-24 left-4 md:left-8 z-10">
                     <Link
-                        href="/explore"
+                        href="/feed"
                         className="inline-flex items-center gap-2 text-white/80 hover:text-white transition-colors bg-black/20 backdrop-blur-md px-4 py-2 rounded-full border border-white/10 hover:border-gold/50"
                     >
                         <ArrowLeft className="w-4 h-4" />
-                        <span>Back to Explore</span>
+                        <span>Back to Feed</span>
                     </Link>
                 </div>
             </div>
@@ -61,6 +90,11 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                                 <span className="text-gold/80 text-sm font-medium tracking-wide">
                                     {event._count.participants} people attending
                                 </span>
+                                {event.visibility === "PRIVATE" && (
+                                    <span className="px-3 py-1 text-xs font-medium uppercase tracking-wider text-white bg-white/10 rounded-full flex items-center gap-1">
+                                        <Lock className="w-3 h-3" /> Private
+                                    </span>
+                                )}
                             </div>
 
                             <h1 className="text-4xl md:text-6xl font-bold font-heading leading-tight">
@@ -85,35 +119,66 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                             </div>
                         </div>
 
-                        {/* Description */}
-                        <div className="space-y-4">
-                            <h2 className="text-2xl font-bold font-heading text-gold">About the Experience</h2>
-                            <p className="text-lg text-white/70 leading-relaxed whitespace-pre-wrap">
-                                {event.description}
-                            </p>
-                        </div>
+                        {canViewDetails ? (
+                            <>
+                                {/* Description */}
+                                <div className="space-y-4">
+                                    <h2 className="text-2xl font-bold font-heading text-gold">About the Experience</h2>
+                                    <p className="text-lg text-white/70 leading-relaxed whitespace-pre-wrap">
+                                        {event.description}
+                                    </p>
+                                </div>
 
-                        {/* Map */}
-                        <div className="space-y-4">
-                            <h2 className="text-2xl font-bold font-heading text-gold">Location</h2>
-                            <div className="flex items-center gap-2 text-white/60 mb-2">
-                                <MapPin className="w-5 h-5 text-gold" />
-                                <span>{event.location}</span>
-                            </div>
-                            <div className="h-[400px] w-full rounded-2xl overflow-hidden border border-white/10">
-                                <MapView
-                                    locations={[{
-                                        id: event.id,
-                                        latitude: event.latitude || 40.7128,
-                                        longitude: event.longitude || -74.0060,
-                                        title: event.title,
-                                        description: event.location
-                                    }]}
-                                    center={{ lat: event.latitude || 40.7128, lng: event.longitude || -74.0060 }}
-                                    zoom={14}
+                                {/* Map */}
+                                <div className="space-y-4">
+                                    <h2 className="text-2xl font-bold font-heading text-gold">Location</h2>
+                                    <div className="flex items-center gap-2 text-white/60 mb-2">
+                                        <MapPin className="w-5 h-5 text-gold" />
+                                        <span>{event.location}</span>
+                                    </div>
+                                    <div className="h-[400px] w-full rounded-2xl overflow-hidden border border-white/10">
+                                        <MapView
+                                            locations={[{
+                                                id: event.id,
+                                                latitude: event.latitude || 40.7128,
+                                                longitude: event.longitude || -74.0060,
+                                                title: event.title,
+                                                description: event.location
+                                            }]}
+                                            center={{ lat: event.latitude || 40.7128, lng: event.longitude || -74.0060 }}
+                                            zoom={14}
+                                        />
+                                    </div>
+                                </div>
+
+                                {/* Chat */}
+                                {(isHost || isParticipant) && (
+                                    <div className="space-y-4">
+                                        <h2 className="text-2xl font-bold font-heading text-gold">Discussion</h2>
+                                        <EventChat eventId={event.id} initialMessages={messages} />
+                                    </div>
+                                )}
+                            </>
+                        ) : (
+                            <div className="bg-surface border border-white/10 rounded-2xl p-12 text-center">
+                                <Lock className="w-16 h-16 text-gold mx-auto mb-6" />
+                                <h2 className="text-3xl font-bold font-heading mb-4">Private Experience</h2>
+                                <p className="text-white/60 text-lg max-w-md mx-auto mb-8">
+                                    This experience is private. You must request access or be invited to view the full details and location.
+                                </p>
+                                <JoinEventButton
+                                    eventId={event.id}
+                                    visibility={event.visibility}
+                                    audience={event.audience}
+                                    userGender={currentUser?.gender}
                                 />
                             </div>
-                        </div>
+                        )}
+
+                        {/* Host Management: Pending Requests */}
+                        {isHost && event.visibility === "PRIVATE" && (
+                            <ManageRequests eventId={event.id} initialRequests={pendingRequests} />
+                        )}
                     </div>
 
                     {/* Right Column: Sticky Sidebar */}
@@ -141,32 +206,39 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                                         </div>
                                     </div>
 
-                                    <div className="flex items-start gap-4">
-                                        <div className="p-3 bg-white/5 rounded-xl text-gold">
-                                            <MapPin className="w-6 h-6" />
+                                    {canViewDetails && (
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-3 bg-white/5 rounded-xl text-gold">
+                                                <MapPin className="w-6 h-6" />
+                                            </div>
+                                            <div>
+                                                <p className="text-white/40 text-sm uppercase tracking-wider">Location</p>
+                                                <p className="text-white font-medium text-lg">{event.location}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-white/40 text-sm uppercase tracking-wider">Location</p>
-                                            <p className="text-white font-medium text-lg">{event.location}</p>
-                                        </div>
-                                    </div>
+                                    )}
                                 </div>
 
                                 <div className="h-px bg-white/10" />
 
-                                {/* <div className="flex items-center justify-between">
-                                    <span className="text-white/60">Price</span>
-                                    <span className="text-3xl font-bold text-white">
-                                        {event.price === 0 ? "Free" : `$${event.price.toFixed(2)}`}
-                                    </span>
-                                </div> */}
+                                {!isParticipant && !isHost && (
+                                    <JoinEventButton
+                                        eventId={event.id}
+                                        visibility={event.visibility}
+                                        audience={event.audience}
+                                        userGender={currentUser?.gender}
+                                        className="w-full text-lg py-6"
+                                    />
+                                )}
 
-                                <Button size="lg" className="w-full text-lg py-6">
-                                    RSVP Now
-                                </Button>
+                                {isParticipant && (
+                                    <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
+                                        <p className="text-green-500 font-medium">You're going!</p>
+                                    </div>
+                                )}
 
                                 <p className="text-center text-white/30 text-xs">
-                                    Limited spots available. Approval required.
+                                    {event.visibility === "PRIVATE" ? "Approval required" : "Instant confirmation"}
                                 </p>
                             </div>
 

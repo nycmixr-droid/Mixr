@@ -18,8 +18,9 @@ type Event = {
     latitude: number | null;
     longitude: number | null;
     price: number;
-    maxParticipants: number | null;
     image: string | null;
+    visibility: "PUBLIC" | "PRIVATE";
+    audience: "ALL" | "MEN_ONLY" | "WOMEN_ONLY";
 };
 
 export default function EventEditClient({ event }: { event: Event }) {
@@ -41,7 +42,8 @@ export default function EventEditClient({ event }: { event: Event }) {
         latitude: event.latitude,
         longitude: event.longitude,
         price: event.price.toString(),
-        capacity: event.maxParticipants?.toString() || "",
+        visibility: event.visibility || "PUBLIC",
+        audience: event.audience || "ALL",
         image: event.image || "",
     });
 
@@ -217,24 +219,44 @@ export default function EventEditClient({ event }: { event: Event }) {
                                     />
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                </div>
 
-                            <div className="space-y-2">
-                                <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
-                                    Capacity
-                                </label>
-                                <div className="relative">
-                                    <Users className="absolute left-4 top-3.5 w-5 h-5 text-gold/50" />
-                                    <input
-                                        name="capacity"
-                                        value={formData.capacity}
-                                        onChange={handleInputChange}
-                                        type="number"
-                                        placeholder="Max Guests"
-                                        min="1"
-                                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-gold/50 transition-colors"
-                                    />
-                                </div>
-                            </div>
+                {/* Settings */}
+                <div className="bg-surface p-8 rounded-3xl border border-white/10">
+                    <h2 className="text-xl font-bold mb-6">Settings</h2>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="space-y-2">
+                            <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
+                                Visibility
+                            </label>
+                            <select
+                                name="visibility"
+                                value={formData.visibility}
+                                onChange={handleInputChange}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold/50 transition-colors"
+                            >
+                                <option value="PUBLIC">Public</option>
+                                <option value="PRIVATE">Private (Approval Required)</option>
+                            </select>
+                        </div>
+
+                        <div className="space-y-2">
+                            <label className="text-xs font-medium text-white/40 uppercase tracking-wider">
+                                Audience
+                            </label>
+                            <select
+                                name="audience"
+                                value={formData.audience}
+                                onChange={handleInputChange}
+                                className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-white focus:outline-none focus:border-gold/50 transition-colors"
+                            >
+                                <option value="ALL">All Genders</option>
+                                <option value="MEN_ONLY">Men Only</option>
+                                <option value="WOMEN_ONLY">Women Only</option>
+                            </select>
                         </div>
                     </div>
                 </div>
