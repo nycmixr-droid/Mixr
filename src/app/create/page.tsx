@@ -287,7 +287,7 @@ export default function CreateExperiencePage() {
                             className="w-full text-lg py-6"
                             disabled={isLoading}
                         >
-                            {isLoading ? "Creating..." : "🚀 Share Your Experience"}
+                            {isLoading ? "Creating..." : "🚀 Share Your Plan"}
                         </Button>
                     </form>
                 </motion.div>
