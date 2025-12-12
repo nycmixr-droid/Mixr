@@ -19,8 +19,8 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Mixr | Curated Experiences",
-  description: "Connect in meaningful, elevated environments.",
+  title: "Mixr. | Join Me Outside",
+  description: "Jump into real-time plans before they slip away",
 };
 
 export default function RootLayout({

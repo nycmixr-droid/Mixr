@@ -9,7 +9,7 @@ export async function createExperience(formData: FormData) {
     const { userId } = await auth();
 
     if (!userId) {
-        throw new Error("You must be signed in to create an experience");
+        throw new Error("You must be signed in to create plans");
     }
 
     // Get or create user

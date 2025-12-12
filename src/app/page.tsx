@@ -83,7 +83,7 @@ export default async function Home() {
             <div className="flex items-center justify-between mb-12">
               <div>
                 <h2 className="text-3xl md:text-4xl font-bold font-heading mb-2">
-                  Upcoming Experiences
+                  Upcoming Plans
                 </h2>
                 <p className="text-white/70">Discover what's happening next</p>
               </div>

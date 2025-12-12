@@ -54,7 +54,7 @@ export default function CreateExperiencePage() {
             }
         } catch (error) {
             console.error(error);
-            alert("Failed to create experience. Please try again.");
+            alert("Failed to create plans. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -72,7 +72,7 @@ export default function CreateExperiencePage() {
                 >
                     <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-gold/10 text-gold text-xs font-medium uppercase tracking-wider mb-4 border border-gold/20">
                         <Sparkles className="w-3 h-3" />
-                        Create Experience
+                        Create Plans
                     </div>
                     <h1 className="text-4xl md:text-6xl font-bold font-heading mb-4">
                         What Are You Up To?

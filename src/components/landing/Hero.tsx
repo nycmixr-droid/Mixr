@@ -9,10 +9,62 @@ export function Hero() {
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
             {/* Background Elements */}
-            <div className="absolute inset-0 z-0">
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-navy-light/20 blur-[120px] rounded-full mix-blend-screen" />
-                <div className="absolute bottom-0 right-0 w-[800px] h-[600px] bg-gold-600/5 blur-[100px] rounded-full mix-blend-screen" />
+            <div className="absolute inset-0 z-0 overflow-hidden bg-black">
+
+                {/* Base depth */}
+                <div className="absolute inset-0 bg-gradient-to-br from-black via-[#050505] to-[#0b0b0b]" />
+
+                {/* White marble "clouding" */}
+                <div className="absolute inset-0 opacity-70 mix-blend-screen">
+                    <div className="absolute -top-40 -left-40 w-[900px] h-[700px] rounded-full bg-white/10 blur-[120px]" />
+                    <div className="absolute top-10 right-[-200px] w-[900px] h-[700px] rounded-full bg-white/8 blur-[140px]" />
+                    <div className="absolute bottom-[-250px] left-1/3 w-[1000px] h-[800px] rounded-full bg-white/7 blur-[160px]" />
+                </div>
+
+                {/* Veins (WHITE) — higher contrast */}
+                <div
+                    className="absolute inset-0 opacity-[0.55] mix-blend-screen"
+                    style={{
+                        backgroundImage: `
+        linear-gradient(115deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.32) 14%, rgba(255,255,255,0) 28%),
+        linear-gradient(25deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.22) 12%, rgba(255,255,255,0) 26%),
+        linear-gradient(160deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.18) 10%, rgba(255,255,255,0) 22%)
+      `
+                    }}
+                />
+
+                {/* Kintsugi (GOLD) streak glows */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[520px] bg-[#d4af37]/20 blur-[130px] rounded-full mix-blend-screen" />
+                <div className="absolute bottom-[-120px] right-[-120px] w-[900px] h-[650px] bg-[#d4af37]/12 blur-[160px] rounded-full mix-blend-screen" />
+
+                {/* Gold "veins" overlay (thin + visible) */}
+                <div
+                    className="absolute inset-0 opacity-[0.45] mix-blend-screen"
+                    style={{
+                        backgroundImage: `
+        linear-gradient(120deg, rgba(212,175,55,0) 0%, rgba(212,175,55,0.35) 12%, rgba(212,175,55,0) 24%),
+        linear-gradient(35deg, rgba(212,175,55,0) 0%, rgba(212,175,55,0.22) 10%, rgba(212,175,55,0) 20%)
+      `
+                    }}
+                />
+
+                {/* Optional: subtle grain to sell the “stone” (turn up/down opacity) */}
+                <div
+                    className="absolute inset-0 opacity-[0.10] mix-blend-overlay"
+                    style={{
+                        backgroundImage: `
+        repeating-linear-gradient(
+          0deg,
+          rgba(255,255,255,0.06) 0px,
+          rgba(255,255,255,0.06) 1px,
+          rgba(0,0,0,0) 2px,
+          rgba(0,0,0,0) 4px
+        )
+      `
+                    }}
+                />
             </div>
+
 
             <div className="container relative z-10 px-4 md:px-6 text-center">
                 <motion.div
@@ -27,10 +79,7 @@ export function Hero() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2, duration: 0.8 }}
                     >
-                        <span className="block text-white">Curated Experiences</span>
-                        <span className="block text-transparent bg-clip-text bg-gradient-to-r from-gold-400 via-gold-500 to-gold-600">
-                            For The Modern Era
-                        </span>
+                        <span className="block text-white">Join Me Outside</span>
                     </motion.h1>
 
                     <motion.p
@@ -39,8 +88,7 @@ export function Hero() {
                         animate={{ opacity: 1 }}
                         transition={{ delay: 0.4, duration: 0.8 }}
                     >
-                        Connect in meaningful, elevated environments. Not clubs, not bars, not social media.
-                        Just real, intentional connection.
+                        Jump into real-time plans before they slip away.
                     </motion.p>
 
                     <motion.div
@@ -51,13 +99,13 @@ export function Hero() {
                     >
                         <Link href="/feed">
                             <Button size="lg" className="group min-w-[200px]">
-                                Explore Events
+                                Join Plans
                                 <ArrowRight className="ml-2 w-4 h-4 transition-transform group-hover:translate-x-1" />
                             </Button>
                         </Link>
                         <Link href="/create">
                             <Button variant="outline" size="lg" className="min-w-[200px]">
-                                Host an Experience
+                                Host Plans
                             </Button>
                         </Link>
                     </motion.div>

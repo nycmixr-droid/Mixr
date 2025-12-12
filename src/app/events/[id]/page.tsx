@@ -5,7 +5,7 @@ import { getEventById } from "@/lib/actions/events";
 import { notFound } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { Calendar, MapPin, ArrowLeft, Share2, Heart, Clock, Lock } from "lucide-react";
+import { Calendar, MapPin, ArrowLeft, Clock, Lock } from "lucide-react";
 import { auth } from "@clerk/nextjs/server";
 import { db } from "@/lib/db";
 import { getMessages } from "./chat-actions";
@@ -13,6 +13,7 @@ import { EventChat } from "@/components/chat/EventChat";
 import { ManageRequests } from "@/components/events/ManageRequests";
 import { getPendingRequests } from "./manage-actions";
 import { JoinEventButton } from "@/components/events/JoinEventButton";
+import { LocationDisplay } from "@/components/events/LocationDisplay";
 
 export default async function EventPage({ params }: { params: Promise<{ id: string }> }) {
     const { id } = await params;
@@ -27,16 +28,19 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
     // Check visibility and access
     const isHost = userId && event.hostId === currentUser?.id;
-    const isParticipant = userId && (await db.rSVP.findUnique({
+    const userRsvp = userId ? await db.rSVP.findUnique({
         where: {
             userId_eventId: {
                 userId: currentUser?.id || "",
                 eventId: id,
             },
         },
-    }));
+    }) : null;
 
-    const canViewDetails = event.visibility === "PUBLIC" || isHost || isParticipant;
+    const isConfirmedParticipant = userRsvp?.status === "CONFIRMED";
+    const isPendingParticipant = userRsvp?.status === "PENDING";
+
+    const canViewDetails = event.visibility === "PUBLIC" || isHost || isConfirmedParticipant;
 
     // Format date and time
     const eventDate = new Date(event.date);
@@ -44,7 +48,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
     const timeStr = eventDate.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
 
     // Fetch messages if allowed
-    const messages = (isHost || isParticipant) ? await getMessages(id) : [];
+    const messages = (isHost || isConfirmedParticipant) ? await getMessages(id) : [];
 
     // Fetch pending requests if host
     const pendingRequests = isHost ? await getPendingRequests(id) : [];
@@ -132,10 +136,13 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                                 {/* Map */}
                                 <div className="space-y-4">
                                     <h2 className="text-2xl font-bold font-heading text-gold">Location</h2>
-                                    <div className="flex items-center gap-2 text-white/60 mb-2">
-                                        <MapPin className="w-5 h-5 text-gold" />
-                                        <span>{event.location}</span>
-                                    </div>
+                                    <LocationDisplay
+                                        location={event.location}
+                                        latitude={event.latitude}
+                                        longitude={event.longitude}
+                                        showIcon={true}
+                                        className="text-white/60 mb-2"
+                                    />
                                     <div className="h-[400px] w-full rounded-2xl overflow-hidden border border-white/10">
                                         <MapView
                                             locations={[{
@@ -152,7 +159,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                                 </div>
 
                                 {/* Chat */}
-                                {(isHost || isParticipant) && (
+                                {(isHost || isConfirmedParticipant) && (
                                     <div className="space-y-4">
                                         <h2 className="text-2xl font-bold font-heading text-gold">Discussion</h2>
                                         <EventChat eventId={event.id} initialMessages={messages} />
@@ -213,7 +220,12 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                                             </div>
                                             <div>
                                                 <p className="text-white/40 text-sm uppercase tracking-wider">Location</p>
-                                                <p className="text-white font-medium text-lg">{event.location}</p>
+                                                <LocationDisplay
+                                                    location={event.location}
+                                                    latitude={event.latitude}
+                                                    longitude={event.longitude}
+                                                    className="text-white font-medium text-lg"
+                                                />
                                             </div>
                                         </div>
                                     )}
@@ -221,7 +233,7 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
 
                                 <div className="h-px bg-white/10" />
 
-                                {!isParticipant && !isHost && (
+                                {!isConfirmedParticipant && !isPendingParticipant && !isHost && (
                                     <JoinEventButton
                                         eventId={event.id}
                                         visibility={event.visibility}
@@ -231,7 +243,13 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                                     />
                                 )}
 
-                                {isParticipant && (
+                                {isPendingParticipant && (
+                                    <div className="bg-yellow-500/10 border border-yellow-500/30 rounded-xl p-4 text-center">
+                                        <p className="text-yellow-500 font-medium">Request Pending</p>
+                                    </div>
+                                )}
+
+                                {isConfirmedParticipant && (
                                     <div className="bg-green-500/10 border border-green-500/30 rounded-xl p-4 text-center">
                                         <p className="text-green-500 font-medium">You're going!</p>
                                     </div>
@@ -242,14 +260,6 @@ export default async function EventPage({ params }: { params: Promise<{ id: stri
                                 </p>
                             </div>
 
-                            <div className="flex gap-4">
-                                <Button variant="outline" className="flex-1 gap-2">
-                                    <Share2 className="w-4 h-4" /> Share
-                                </Button>
-                                <Button variant="outline" className="flex-1 gap-2">
-                                    <Heart className="w-4 h-4" /> Save
-                                </Button>
-                            </div>
                         </div>
                     </div>
 

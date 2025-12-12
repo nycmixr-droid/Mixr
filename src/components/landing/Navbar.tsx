@@ -27,9 +27,9 @@ export function Navbar() {
         >
             <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
                 <Link href="/" className="flex items-center gap-2">
-                    <div className="relative w-24 h-8">
+                    <div className="relative w-32 h-12">
                         <Image
-                            src="/logo.png"
+                            src="/newLogo.png"
                             alt="Mixr"
                             fill
                             className="object-contain object-left"
@@ -65,7 +65,7 @@ export function Navbar() {
                 <div className="hidden md:flex items-center gap-4">
                     <Link href="/create">
                         <Button variant="outline" size="sm" className="hidden lg:flex">
-                            Create Experience
+                            Create Plans
                         </Button>
                     </Link>
                     <SignedOut>
@@ -74,7 +74,7 @@ export function Navbar() {
                                 Sign In
                             </button>
                         </SignInButton>
-                        <Button size="sm">Get Started</Button>
+                        {/* <Button size="sm">Get Started</Button> */}
                     </SignedOut>
                     <SignedIn>
                         <UserButton
@@ -135,7 +135,7 @@ export function Navbar() {
                                         Sign In
                                     </button>
                                 </SignInButton>
-                                <Button className="w-full" onClick={() => setIsMobileMenuOpen(false)}>Get Started</Button>
+                                {/* <Button className="w-full" onClick={() => setIsMobileMenuOpen(false)}>Get Started</Button> */}
                             </SignedOut>
                             <SignedIn>
                                 <UserButton
