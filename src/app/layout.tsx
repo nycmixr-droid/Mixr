@@ -20,7 +20,7 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: "Mixr. | Join Me Outside",
-  description: "Jump into real-time plans before they slip away",
+  description: "Jump into real-time plans before they slip away!",
 };
 
 export default function RootLayout({
